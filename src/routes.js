@@ -16,32 +16,35 @@ routes.post('/authregister', async (req, res) => {
 	const repasswd = req.body.repasswd
 	if(passwd == repasswd) {
 		const hash = await bcrypt.hash(passwd, 8)
-		const user = await db.insert('users', {email, passwd: hash})
-		if(user)
-			res.status(200).send({"success": "User registered"})
-		else
-			res.status(400).send({"error": "unknown error in creating user"})
+		try {
+			const user = await db.insert('users', {email, passwd: hash})	
+			res.status(201).json({'success': 'User registered'})
+		} catch(err) {
+			console.log(err)
+			res.status(400).json({'error': 'Unable to create user'})
+		}	
 	}
 	else 
-		res.send({"error": "Password and retyped password don't match"})
+		res.json({'error': 'Password and retyped password don\'t match'})
 })
 
 /* Endpoint for user authentication and login */
 routes.post('/authlogin', async (req, res) => {
 	const email = req.body.email
 	const passwd = req.body.passwd
-	const user = await db.getUser('users', email)
-	if(user) {
-		console.log(user)
+	try {
+		const user = await db.getUser('users', email)	
+		if(!user)
+			throw "Username doesn't exist"
 		const isMatch = await bcrypt.compare(passwd, user.passwd)
-		if(isMatch)
-			res.status(200).send({'success': 'successfully authenticated'})
+		if(isMatch) 
+			res.status(200).json({'success': 'successfully authenticated'})
 		else
-			res.status(400).send({'error': 'wrong password'})
-	} else
-		res.status(400).send({'error': 'username doesn\'t exist'})
-	
-	
+			res.status(400).json({'error': 'wrong password'})
+	} catch(err) {
+		console.log('Error: ' + err)
+		res.status(400).json({'error': 'username doesn\'t exist'})
+	}
 })
 
 module.exports = routes

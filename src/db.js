@@ -4,24 +4,21 @@ const MongoClient = require('mongodb').MongoClient
 let db
 
 /* Initialize connection to database */
-function init(dbname) {
-	return new Promise((resolve, reject) => {
-		const url = 'mongodb://localhost/'
-		MongoClient.connect(url, {
-			useNewUrlParser: true,
-			useUnifiedTopology: true
-		}, (err, client) => {
-			if(err) {
-				reject(err)
-			} else {
-				console.log("Connected to " + dbname)
-				db = client.db(dbname)
-				resolve()	
-			}
-			reject(new Error("Unknown error"))
-		})	
-	})
-	
+async function init(dbname) {
+	const url = 'mongodb://localhost/'
+	MongoClient.connect(url, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true
+	}, (err, client) => {
+		if(err) {
+			throw err
+		} else {
+			console.log("Connected to " + dbname)
+			db = client.db(dbname)
+			return;
+		}
+		throw "Unknown error"
+	})	
 }
 
 /* Insert document into collection */
@@ -34,15 +31,15 @@ function insert(collection, document) {
 				resolve(res)
 		})	
 	})
-	
 }
 
 /* Return the user document corresponding to the given email id */
-function getUser(collection, email) {
-	return new Promise((resolve, reject) => {
-		db.collection(collection).findOne({"email": email}).then(result => resolve(result)).catch(err => reject(err))
-	})
-	
+async function getUser(collection, email) {
+	return db.collection(collection).findOne({"email": email})
+		.then(user => user)
+		.catch(err => {throw (err)})
 }
+
+
 
 module.exports = {init, insert, getUser}
