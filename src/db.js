@@ -28,18 +28,40 @@ function insert(collection, document) {
 			if(err)
 				reject(err)
 			else
-				resolve(res)
+				resolve(res.ops[0])
 		})	
 	})
 }
 
 /* Return the user document corresponding to the given email id */
-async function getUser(collection, email) {
+async function getUserByEmail(collection, email) {
 	return db.collection(collection).findOne({"email": email})
 		.then(user => user)
 		.catch(err => {throw (err)})
 }
 
+/* Return the user document having the given id and token */
+async function getUserByIdAndToken(collection, id, token) {
+	console.log("id: " + id + '\ntoken: ' + token + '\n')
+	return db.collection(collection).findOne({"_id": id, 'tokens.token': token})
+		.then(user => user)
+		.catch(err => {throw (err)})
+}
 
+/* Add token to the user document specified by the id */
+async function addToken(collection, userid, token) {
+	db.collection(collection).findOneAndUpdate(
+		{'_id': userid},
+		{ $push: {tokens: {token}}}
+	)
+}
 
-module.exports = {init, insert, getUser}
+/* Remove the token from the user document specified by the id */
+async function removeToken(collection, userid, token) {
+	db.collection(collection).findOneAndUpdate(
+		{'_id': userid},
+		{ $pull: {tokens: {token}}}
+	)
+}
+
+module.exports = {init, insert, getUserByEmail, getUserByIdAndToken, addToken, removeToken}
