@@ -1,5 +1,5 @@
 {
-  "name": "jwt-user-auth",
+  "name": "mongoose-jwt-user-auth",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
