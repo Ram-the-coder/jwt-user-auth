@@ -74,4 +74,9 @@ async function generateAuthToken(userid) {
 	return token
 }
 
-module.exports = {init, createUser, authUser, deAuthUser, getUserByIdAndToken,}
+async function close() {
+	mongoose.connection.close()
+	console.log('mongoose connection closed')
+}
+
+module.exports = {init, createUser, authUser, deAuthUser, getUserByIdAndToken, close}

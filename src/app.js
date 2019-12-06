@@ -21,7 +21,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/', routes)
 
 /* Listen on port */
-app.listen(process.env.PORT, () => console.log("Server listening on port " + process.env.PORT))
+const server = app.listen(process.env.PORT, () => console.log("Server listening on port " + process.env.PORT))
 
 /* Initialize database connection */
 db.init(process.env.DB_NAME).then(() => console.log("Connected to " + process.env.DB_NAME + " MongoDB database")).catch(err => {
@@ -29,3 +29,11 @@ db.init(process.env.DB_NAME).then(() => console.log("Connected to " + process.en
 	console.log(err)
 })
 
+const sigs = ['SIGINT', 'SIGTERM', 'SIGQUIT']
+sigs.forEach(sig => {
+	process.on(sig, () => {
+		db.close(process.env.DB_NAME)
+		console.log('Closing node.js server...')
+		server.close()
+	})
+})

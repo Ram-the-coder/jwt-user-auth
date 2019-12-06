@@ -5,24 +5,24 @@ const bcrypt = require('bcryptjs')
 const USER_COLLECTION = process.env.USER_COLLECTION
 const ObjectID = require('mongodb').ObjectID
 
-let db
+let client, db
 
 /* Initialize connection to database */
-async function init(dbname) {
-	const url = process.env.DB_URL
-	MongoClient.connect(url, {
-		useNewUrlParser: true,
-		useUnifiedTopology: true
-	}, (err, client) => {
-		if(err) {
-			throw err
-		} else {
-			console.log("Connected to " + dbname)
-			db = client.db(dbname)
-			return;
-		}
-		throw "Unknown error"
-	})	
+function init(dbname) {
+	return new Promise((resolve, reject) => {
+		const url = process.env.DB_URL
+		MongoClient.connect(url, {
+			useNewUrlParser: true,
+			useUnifiedTopology: true
+		}, (err, clientO) => {
+			if(err)
+				return reject(err)
+			client = clientO 
+			db = clientO.db(dbname)
+			return resolve();
+		})		
+	})
+	
 }
 
 function createUser(email, hash) {
@@ -30,7 +30,7 @@ function createUser(email, hash) {
 
 		db.collection(USER_COLLECTION).insertOne({email, passwd: hash}, async (err, res) => {
 			if(err)
-				reject(err)
+				return reject(err)
 
 			const user = res.ops[0]
 			const token = await generateAuthToken(user._id)
@@ -40,7 +40,7 @@ function createUser(email, hash) {
 				{'_id': user._id},
 				{ $push: {tokens: {token}}}
 			)	
-			resolve([user, token])
+			return resolve([user, token])
 		})		
 	})
 }
@@ -95,4 +95,9 @@ async function generateAuthToken(userid) {
 	return token
 }
 
-module.exports = {init, createUser, authUser, deAuthUser, getUserByIdAndToken}
+async function close(dbname) {
+	client.close()
+	console.log(dbname + ' database connection closed')
+}
+
+module.exports = {init, createUser, authUser, deAuthUser, getUserByIdAndToken, close}	
