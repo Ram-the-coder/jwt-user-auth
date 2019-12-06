@@ -1,13 +1,7 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 
-mongoose.connect('mongodb://localhost/jwtuserauth', {
-	useNewUrlParser: true,
-	useUnifiedTopology: true,
-	useCreateIndex: true
-})
-
-const User = mongoose.model('User', {
+const userSchema = new mongoose.Schema({
 	email: {
 		type: String,
 		required: true,
@@ -40,9 +34,6 @@ const User = mongoose.model('User', {
 
 })
 
-const usr = new User({
-	email: 'sheldon1@caltech.com',
-	passwd: 'genius'
-})
+const User = mongoose.model('User', userSchema)
 
-usr.save().then(() => console.log(usr)).catch(err => console.log(err))
+module.exports = User

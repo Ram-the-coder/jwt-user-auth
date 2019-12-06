@@ -1,21 +1,22 @@
 const jwt = require('jsonwebtoken')
-const db = require('../db')
-const ObjectId = require('mongodb').ObjectId
+const db = require('../db/' + process.env.DB_DRIVER)
 
 /* Authenticate user */
 async function auth(req, res, next) {
 	try {
 		const token = req.header('Authorization').replace('Bearer ', '')
 		const decoded = jwt.verify(token, 'authboilerplate')
-		console.log(token, decoded)
-		const user = await db.getUserByIdAndToken('users', ObjectId(decoded._id), token)
+
+		const user = await db.getUserByIdAndToken(decoded._id, token)
 		if(!user)
-			throw new Error()
+			throw 'Invalid token'
 		
 		req.user = user
 		next()
-	} catch(e) {
-		res.status(401).json({'error': 'Please authenticate'})
+
+	} catch(error) {
+		console.log('Error in auth: ' + error)
+		res.status(401).json({error})
 	}
 }
 

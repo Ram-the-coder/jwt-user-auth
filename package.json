@@ -1,5 +1,5 @@
 {
-  "name": "mongoose-jwt-user-auth",
+  "name": "jwt-user-auth",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -16,8 +16,8 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "jsonwebtoken": "^8.5.1",
-    "mongodb": "^3.3.5"
+    "jsonwebtoken": "^8.5.1"
   }
 }

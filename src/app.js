@@ -1,9 +1,11 @@
-/* Business Layer */
+	/* Business Layer */
+require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
 const path = require('path')
 const routes = require('./routes')
-const db = require('./db')
+const db = require('./db/' + process.env.DB_DRIVER)
+
 
 
 const app = express()
@@ -19,11 +21,11 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/', routes)
 
 /* Listen on port */
-app.listen(3000, () => console.log("Server listening on port 3000"))
+app.listen(process.env.PORT, () => console.log("Server listening on port " + process.env.PORT))
 
 /* Initialize database connection */
-db.init('jwtauth').then(() => console.log("Connected to jwtauth MongoDB database")).catch(err => {
-	console.log("Unable to connect to MongoDB database jwtauth")
+db.init(process.env.DB_NAME).then(() => console.log("Connected to " + process.env.DB_NAME + " MongoDB database")).catch(err => {
+	console.log("Unable to connect to MongoDB database " + process.env.DB_NAME)
 	console.log(err)
 })
 
