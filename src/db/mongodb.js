@@ -25,6 +25,7 @@ function init(dbname) {
 	
 }
 
+/* Create user with the given email and the hashed password */
 function createUser(email, hash) {
 	return new Promise((resolve, reject) => {
 
@@ -45,6 +46,7 @@ function createUser(email, hash) {
 	})
 }
 
+/* Authenticate (i.e. Login) user with the given email and password */
 async function authUser(email, passwd) {
 	const user = await db.collection(USER_COLLECTION).findOne({email})
 	if(!user)
@@ -68,6 +70,8 @@ async function authUser(email, passwd) {
 	return [user, token]
 }
 
+/* De-authenticate (i.e. logout) user with the given user id and authentication token used */
+/* Find user with the given user id and token combination and remove that token from the database */
 async function deAuthUser(_id, token) {
 	const user = await db.collection(USER_COLLECTION).findOneAndUpdate(
 					{_id},
@@ -76,6 +80,7 @@ async function deAuthUser(_id, token) {
 	return user
 }
 
+/* Given a user id and token, return the user document */
 async function getUserByIdAndToken(userid, token) {
 	try {
 		console.log(token)
@@ -95,6 +100,7 @@ async function generateAuthToken(userid) {
 	return token
 }
 
+/* Close database connection */
 async function close(dbname) {
 	client.close()
 	console.log(dbname + ' database connection closed')

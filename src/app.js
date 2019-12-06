@@ -29,6 +29,8 @@ db.init(process.env.DB_NAME).then(() => console.log("Connected to " + process.en
 	console.log(err)
 })
 
+/* Handle process terminating signals */
+/* If a process terminating signal is received, terminate the databse connection and then stop the server */
 const sigs = ['SIGINT', 'SIGTERM', 'SIGQUIT']
 sigs.forEach(sig => {
 	process.on(sig, () => {
